@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.special as sp
 
 class Absorber:
 
@@ -50,6 +51,10 @@ class Absorber:
 
 # Domain
 omega = np.linspace(1,2e4,80000)
+x = np.linspace(0.01,40,1000)
+plt.plot(x,sp.j0(x))
+plt.plot(x,sp.j1(x))
+plt.show()
 
 material_A = Absorber( 5e3, 0.975, 1.05, 150e-6, 300e-6 )
 #material_A.komatsu( omega )
