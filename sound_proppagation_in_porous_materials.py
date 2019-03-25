@@ -5,6 +5,10 @@ print("This script calculates the surface impedance and propagation constant of 
 import numpy as np
 import matplotlib.pyplot as plt
 
+def komatsu( omega, airflow_resistivity ):
+    surface_impedance = ( air_density * speed_of_sound ) * ( 1 + 0.00027 * np.power( 2 - np.log10( omega / ( 2 * np.pi * airflow_resistivity ) ), 6.2 ) - 1j * 0.0047 * np.power( 2 - np.log10( omega / ( 2 * np.pi * airflow_resistivity ) ), 4.1 ) ) 
+    return surface_impedance
+
 # Enviromental conditions
 speed_of_sound = 343.2
 air_density = 1.2041 
