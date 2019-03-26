@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.special as sp
+import scipy.integrate as integ
 
 class Absorber:
 
@@ -52,9 +53,50 @@ class Absorber:
 # Domain
 omega = np.linspace(1,2e4,80000)
 x = np.linspace(0.01,40,1000)
-plt.plot(x,sp.j0(x))
-plt.plot(x,sp.j1(x))
+
+def third_term(k, z_source, z_receiver, air_wavenumber, absorber_wavenumber, r, absorber_density, air_density, layer_thickness ):
+    air_nu = np.sqrt( np.power( k , 2 ) - np.power( air_wavenumber, 2 ) )
+    absorber_nu = np.sqrt( np.power( k , 2 ) - np.power( absorber_wavenumber, 2 ) )
+    return np.exp(- air_nu  * ( z_source + z_receiver ) ) * ( (2*absorber_density) / ( absorber_density * air_nu + air_density * absorber_nu * np.tanh(absorber_nu * layer_thickness ) ) ) * sp.j0( k * r ) * k 
+
+def velocity_potencial(r_source, r_receiver, angular_frequency ):
+    air_wavenumber = 2 * np.pi * angular_frequency / speed_of_sound
+    absorber_wavenumber = 2 * np.pi * angular_frequency / ( 2 * speed_of_sound )
+    r_refl = np.copy(r_source)
+    r_refl[2] =  - r_refl[2]
+    r = np.sqrt( np.power( r_source[0] - r_receiver[0], 2) + np.power( r_source[1] - r_receiver[1], 2) )
+    Rinc = np.linalg.norm( r_source - r_receiver )
+    Rrefl = np.linalg.norm( r_refl - r_receiver )
+    Q = 1000
+    inputs = ( r_source[2], r_receiver[2], air_wavenumber, absorber_wavenumber , r, absorber_density,) 
+    #return ( Q/ ( 4 * np.pi ) ) * ( np.exp( - 1j * air_wavenumber * Rinc ) / Rinc )
+    return ( Q/ ( 4 * np.pi ) ) * ( np.exp( - 1j * air_wavenumber * Rinc ) / Rinc - np.exp( - 1j * air_wavenumber * Rrefl ) / Rrefl  ) 
+
+speed_of_sound = 343.2
+angular_frequency = np.linspace(1,20000,80000)
+r_source = np.array([0,0,0.6])
+r_receiver = np.array([0,0,0.05])
+
+plt.plot( angular_frequency , velocity_potencial( r_source, r_receiver, angular_frequency ) )
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+# Allard paper - The acoustic sound field above a porous layer and the estimation of the acoustic surface impedance from free-field measurements
+#integral_bessel = integ.quadrature(velocity_potencial,1,2e4)
+# pressure
+# p_tot = air_density * omega * velocity_potencial * 1j
+
+
 
 material_A = Absorber( 5e3, 0.975, 1.05, 150e-6, 300e-6 )
 #material_A.komatsu( omega )
